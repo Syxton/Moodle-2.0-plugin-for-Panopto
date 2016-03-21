@@ -88,74 +88,77 @@ class provision_cron extends \core\task\scheduled_task {
             }
             $provisioningdata = $panoptodata->get_provisioning_info();
             $provisioneddata = $panoptodata->provision_course($provisioningdata);
-            
-            echo get_string('course_name', 'block_panopto') . "\n";
-            echo '  ' . $provisioningdata->ShortName . ": " . $provisioningdata->LongName . "\n";
-
-            echo get_string('publishers', 'block_panopto') . "\n";
-            if (!empty($provisioningdata->Publishers)) {
-                $publishers = $provisioningdata->Publishers;
-
-                // Single-element return set comes back as scalar, not array (?).
-                if (!is_array($publishers)) {
-                    $publishers = array($publishers);
-                }
-                $publisherinfo = array();
-                foreach ($publishers as $publisher) {
-                    array_push($publisherinfo, "  $publisher->UserKey ($publisher->FirstName $publisher->LastName <$publisher->Email>)");
-                }
-
-                echo join("\n", $publisherinfo);
-            } else {
-                echo '  ' . get_string('no_publishers', 'block_panopto');
-            }
-            echo "\n";
-    
-            echo get_string('creators', 'block_panopto') . "\n";
-            if (!empty($provisioningdata->Instructors)) {
-                $instructors = $provisioningdata->Instructors;
-
-                // Single-element return set comes back as scalar, not array (?).
-                if (!is_array($instructors)) {
-                    $instructors = array($instructors);
-                }
-                $instructorinfo = array();
-                foreach ($instructors as $instructor) {
-                    array_push($instructorinfo, "  $instructor->UserKey ($instructor->FirstName $instructor->LastName <$instructor->Email>)");
-                }
-
-                echo join("\n", $instructorinfo);
-            } else {
-                echo '  ' . get_string('no_creators', 'block_panopto');
-            }
-            echo "\n";
-            echo get_string('students', 'block_panopto') . "\n";
-            if (!empty($provisioningdata->Students)) {
-                $students = $provisioningdata->Students;
-
-                // Single-element return set comes back as scalar, not array (?).
-                if (!is_array($students)) {
-                    $students = array($students);
-                }
-                $studentinfo = array();
-                foreach ($students as $student) {
-                    array_push($studentinfo, $student->UserKey);
-                }
-
-                echo '  ' . join(", ", $studentinfo);
-            } else {
-                echo '  ' . get_string('no_students', 'block_panopto');
-            }
-            echo "\n";
-            echo get_string('result', 'block_panopto');
-            if (!empty($provisioneddata)) {
-                echo '  {' . $provisioneddata->PublicID . "}\n";
-            } else {
-                echo '  ' . get_string('provision_error', 'block_panopto');
-            }
-            echo "\n";
+            panopto_provision_display_cron($provisioningdata);
         }   
     }
+}
+
+function panopto_provision_display_cron($provisioningdata) {
+    echo get_string('course_name', 'block_panopto') . "\n";
+    echo '  ' . $provisioningdata->ShortName . ": " . $provisioningdata->LongName . "\n";
+
+    echo get_string('publishers', 'block_panopto') . "\n";
+    if (!empty($provisioningdata->Publishers)) {
+        $publishers = $provisioningdata->Publishers;
+
+        // Single-element return set comes back as scalar, not array (?).
+        if (!is_array($publishers)) {
+            $publishers = array($publishers);
+        }
+        $publisherinfo = array();
+        foreach ($publishers as $publisher) {
+            array_push($publisherinfo, "  $publisher->UserKey ($publisher->FirstName $publisher->LastName <$publisher->Email>)");
+        }
+
+        echo join("\n", $publisherinfo);
+    } else {
+        echo '  ' . get_string('no_publishers', 'block_panopto');
+    }
+    echo "\n";
+
+    echo get_string('creators', 'block_panopto') . "\n";
+    if (!empty($provisioningdata->Instructors)) {
+        $instructors = $provisioningdata->Instructors;
+
+        // Single-element return set comes back as scalar, not array (?).
+        if (!is_array($instructors)) {
+            $instructors = array($instructors);
+        }
+        $instructorinfo = array();
+        foreach ($instructors as $instructor) {
+            array_push($instructorinfo, "  $instructor->UserKey ($instructor->FirstName $instructor->LastName <$instructor->Email>)");
+        }
+
+        echo join("\n", $instructorinfo);
+    } else {
+        echo '  ' . get_string('no_creators', 'block_panopto');
+    }
+    echo "\n";
+    echo get_string('students', 'block_panopto') . "\n";
+    if (!empty($provisioningdata->Students)) {
+        $students = $provisioningdata->Students;
+
+        // Single-element return set comes back as scalar, not array (?).
+        if (!is_array($students)) {
+            $students = array($students);
+        }
+        $studentinfo = array();
+        foreach ($students as $student) {
+            array_push($studentinfo, $student->UserKey);
+        }
+
+        echo '  ' . join(", ", $studentinfo);
+    } else {
+        echo '  ' . get_string('no_students', 'block_panopto');
+    }
+    echo "\n";
+    echo get_string('result', 'block_panopto');
+    if (!empty($provisioneddata)) {
+        echo '  {' . $provisioneddata->PublicID . "}\n";
+    } else {
+        echo '  ' . get_string('provision_error', 'block_panopto');
+    }
+    echo "\n";
 }
 
 /**
