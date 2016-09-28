@@ -62,7 +62,7 @@ class update_user extends \core\task\adhoc_task {
      */
     private function get_role_from_context($contextid, $userid) {
         $context = \context::instance_by_id($contextid);
-        $role = "Viewer";
+        $role = "None";
         if (has_capability('block/panopto:provision_aspublisher', $context, $userid)) {
             if (has_capability('block/panopto:provision_asteacher', $context, $userid)) {
                 $role = "Creator/Publisher";
@@ -71,7 +71,10 @@ class update_user extends \core\task\adhoc_task {
             }
         } else if (has_capability('block/panopto:provision_asteacher', $context, $userid)) {
             $role = "Creator";
+        } else if (is_enrolled($context, $userid, '', true)) { // Otherwise, are they actively enrolled?
+            $role = "Viewer";
         }
+
         return $role;
     }
 

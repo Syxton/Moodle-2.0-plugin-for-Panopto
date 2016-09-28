@@ -199,6 +199,7 @@ class panopto_data {
                 );
         }
         
+        $provisioninginfo = new stdClass();
         $provisioninginfo->ShortName = $DB->get_field('course', 'shortname', array('id' => $this->moodlecourseid));
         $provisioninginfo->LongName = $DB->get_field('course', 'fullname', array('id' => $this->moodlecourseid));
         $provisioninginfo->ExternalCourseID = $this->instancename . ":" . $this->moodlecourseid;
@@ -531,9 +532,19 @@ class panopto_data {
      * Remove a user's enrollment from the current course
      */
     public function remove_course_user($role, $userkey) {
-        {
-            $this->remove_course_user_soap_call($role, $userkey);
-        }
+        // Remove all user roles and start fresh.
+        $this->remove_course_user_soap_call("Publisher", $userkey);
+        $this->remove_course_user_soap_call("Creator", $userkey);
+        $this->remove_course_user_soap_call("Viewer", $userkey);
+        
+        if ($role !== "None") {
+            if ($role == "Creator/Publisher") {
+                $this->add_course_user_soap_call("Publisher", $userkey);
+                $this->add_course_user_soap_call("Creator", $userkey);
+            } else {
+                $this->change_user_role_soap_call($role, $userkey);
+            }
+        } 
     }
 
     /**
@@ -558,14 +569,19 @@ class panopto_data {
      * Change an enrolled user's role in the current course
      */
     public function change_user_role($role, $userkey) {
-
-        //If user is to have both creator and publisher roles, change his current role to publisher, and add a creator role.
-        if ($role == "Creator/Publisher") {
-            $this->change_user_role_soap_call("Publisher", $userkey);
-            $this->add_course_user_soap_call("Creator", $userkey);
-        } else {
-            $this->change_user_role_soap_call($role, $userkey);
-        }
+        // Remove all user roles and start fresh.
+        $this->remove_course_user_soap_call("Publisher", $userkey);
+        $this->remove_course_user_soap_call("Creator", $userkey);
+        $this->remove_course_user_soap_call("Viewer", $userkey);
+        
+        if ($role !== "None") {
+            if ($role == "Creator/Publisher") {
+                $this->add_course_user_soap_call("Publisher", $userkey);
+                $this->add_course_user_soap_call("Creator", $userkey);
+            } else {
+                $this->change_user_role_soap_call($role, $userkey);
+            }
+        }            
     }
 
     /**
